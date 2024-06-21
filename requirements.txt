@@ -1,4 +1,0 @@
-python3 -m venv .venv==2.1.2
-python-dotenv==0.20.0
-pyzk==0.9
-python-dotenv==0.20.0
