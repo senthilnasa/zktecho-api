@@ -19,10 +19,10 @@ Before running the application with Docker, ensure you have Docker installed on 
 
 ```bash
 docker pull senthilnasa/zktecho-api:latest
-docker run -p 5000:5000 --env-file ./env.json senthilnasa/zktecho-api
+docker run -p 5000:5000 $(pwd)/env.json:/app/env.json senthilnasa/zktecho-api
 ```
 
-In the above command, `--env-file ./env.json` specifies the path to your environment configuration file. Make sure to modify your `env.json` based on the `sample.env.json` provided as a reference.
+In the above command, `$(pwd)/env.json:/app/env.json` specifies the path to your environment configuration file. Make sure to modify your `env.json` based on the `sample.env.json` provided as a reference.
 
 ### Environment Configuration
 
