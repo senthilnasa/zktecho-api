@@ -12,9 +12,9 @@ config = load_config()
 def validate_api_credentials(func):
     @wraps(func)
     def decorated_function(*args, **kwargs):
-        api_key = request.json.get('api_key')
-        api_secret = request.json.get('api_secret')
-        device_id = request.json.get('device_id')
+        api_key = request.args.get('api_key') or request.form.get('api_key')
+        api_secret = request.args.get('api_secret') or request.form.get('api_secret')
+        device_id = request.args.get('device_id') or request.form.get('device_id')
 
         valid = False
         device_config = None
