@@ -3,10 +3,10 @@ name: Build and Deploy Docker Image to Docker Hub
 on:
   push:
     branches:
-      - main  
+      - master  
   pull_request:
     branches:
-      - main 
+      - master 
 
 jobs:
   build-and-push:
