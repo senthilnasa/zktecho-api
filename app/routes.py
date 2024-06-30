@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, g
 from .middleware import validate_api_credentials
-from .zkteco import getUsers, addUser, getAttendance, clearAttendance, deleteUser, enrollFingerprintFromReader
+from .zkteco import getUsers, addUser, getAttendance, clearAttendance, deleteUser, enrollFingerprintFromReader,enrollFaceFromReader
 
 # Initialize the Flask Blueprint
 main = Blueprint('main', __name__)
@@ -15,7 +15,9 @@ def index():
 @validate_api_credentials  # Middleware to validate API credentials before processing the request
 def get_users():
     device_config = g.device_config  # Retrieve device configuration stored in the global context
-    users = getUsers(device_config['ip'], device_config['port'], device_config['password'])
+    success,users = getUsers(device_config['ip'], device_config['port'], device_config['password'])
+    if not success:
+        return jsonify({'success': False, 'message': users})
     return jsonify({'success': True, 'users': users})
 
 # Route to get attendance data from a ZKTeco device
@@ -40,19 +42,19 @@ def clear_attendance():
 @main.route('/add_user', methods=['POST'])
 @validate_api_credentials
 def add_user():
-    data = request.data
+    data = request.form
     device_config = g.device_config
-    success, message = addUser(device_config['ip'], device_config['port'], data['uid'], data['name'],
-                               data['privilege'], data['password'], data['group_id'], data['user_id'], data['fingerprints'])
+    success, message = addUser(device_config['ip'], device_config['port'], device_config['password'], data.get('uid'), data.get('name'),data.get('password'),
+                                 data.get('privilege'), data.get('group_id'), data.get('user_id'))
     return jsonify({'success': success, 'message': message})
 
 # Route to enroll a fingerprint to a user on a ZKTeco device
 @main.route('/add_finger', methods=['POST'])
 @validate_api_credentials
 def add_finger():
-    data = request.data
+    data = request.form
     device_config = g.device_config
-    success, message = enrollFingerprintFromReader(device_config['ip'], device_config['port'], data['uid'], data['temp_id'])
+    success, message = enrollFingerprintFromReader(device_config['ip'], device_config['port'], device_config['password'],data.get('uid'), data.get('temp_id'))
     if not success:
         return jsonify({'success': False, 'message': message})
     else:
@@ -62,17 +64,16 @@ def add_finger():
 @main.route('/add_face', methods=['POST'])
 @validate_api_credentials
 def add_face():
-    data = request.data
+    data = request.form
     device_config = g.device_config
-    success, message = addUser(device_config['ip'], device_config['port'], data['uid'], data['name'],
-                               data['privilege'], data['password'], data['group_id'], data['user_id'], "face", data['face'])
+    success, message = enrollFaceFromReader(device_config['ip'], device_config['port'],device_config['password'], data.get('uid'))
     return jsonify({'success': success, 'message': message})
 
 # Route to delete a fingerprint from a user on a ZKTeco device
 @main.route('/delete_finger', methods=['DELETE'])
 @validate_api_credentials
 def delete_finger():
-    data = request.data
+    data = request.form
     device_config = g.device_config
     success, message = addUser(device_config['ip'], device_config['port'], data['uid'], data['name'],
                                data['privilege'], data['password'], data['group_id'], data['user_id'], data['fingerprints'])
@@ -82,7 +83,7 @@ def delete_finger():
 @main.route('/delete_user', methods=['DELETE'])
 @validate_api_credentials
 def delete_user():
-    data = request.data
+    data = request.form
     device_config = g.device_config
     success, message = deleteUser(device_config['ip'], device_config['port'], data['uid'])
     return jsonify({'success': success, 'message': message})
