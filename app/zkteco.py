@@ -25,6 +25,7 @@ def addUser(ip, port,password, uid, name,upassword, privilege, group_id, user_id
         #Add User
         conn.set_user(uid=int(uid), name=name, privilege=const.USER_DEFAULT, password=upassword, user_id=str(user_id), group_id=group_id) 
         # enable device
+        conn.test_voice()
         conn.enable_device()
         return True, f"User {name} added successfully"
     except Exception as e:
@@ -69,6 +70,8 @@ def enrollFingerprintFromReader(ip, port, password, uid, temp_id):
             return False, "Fingerprint ID must be between 1 and 10"
         conn.enroll_user(uid=int(uid),temp_id=int(temp_id))
         conn.enable_device()
+        conn.test_voice()
+
         return True, f"Fingerprint {temp_id} added successfully"
     except Exception as e:
         return False, f"Error adding fingerprint {temp_id} to user {uid} on device {ip}: {e}"
@@ -104,6 +107,8 @@ def enrollFaceFromReader(ip, port, password, uid):
             
         conn.enroll_user(uid=int(uid),temp_id=111)
         conn.enable_device()
+        conn.test_voice()
+
         return True, f"Face data added successfully"
     except Exception as e:
         return False, f"Error adding face data to user {uid} on device {ip}: {e}"
@@ -223,6 +228,8 @@ def deleteUser(ip, port, password, uid):
         # Delete User
         conn.delete_user(uid)
         conn.enable_device()
+        conn.test_voice()
+
         return True, f"User {uid} deleted successfully"
     except Exception as e:
         return False, f"Error deleting user {uid} from device {ip}: {e}"
