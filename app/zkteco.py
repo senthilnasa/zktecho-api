@@ -226,7 +226,7 @@ def deleteUser(ip, port, password, uid):
         conn.disable_device()
         # another commands will be here!
         # Delete User
-        conn.delete_user(uid)
+        conn.delete_user(user_id=uid)
         conn.enable_device()
         conn.test_voice()
 

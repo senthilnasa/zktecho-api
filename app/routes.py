@@ -73,17 +73,17 @@ def add_face():
 @main.route('/delete_finger', methods=['DELETE'])
 @validate_api_credentials
 def delete_finger():
-    data = request.form
+    data = request.args
     device_config = g.device_config
-    success, message = addUser(device_config['ip'], device_config['port'], data['uid'], data['name'],
-                               data['privilege'], data['password'], data['group_id'], data['user_id'], data['fingerprints'])
+    success, message = addUser(device_config['ip'], device_config['port'], data.get('uid'), data.get('name'),
+                               data.get('privilege'), data.get('password'), data.get('group_id'), data.get('user_id'), data.get('fingerprints'))
     return jsonify({'success': success, 'message': message})
 
 # Route to delete a user from a ZKTeco device
 @main.route('/delete_user', methods=['DELETE'])
 @validate_api_credentials
 def delete_user():
-    data = request.form
+    data = request.args
     device_config = g.device_config
-    success, message = deleteUser(device_config['ip'], device_config['port'], data['uid'])
+    success, message = deleteUser(device_config['ip'], device_config['port'], device_config['password'], data.get('uid'))
     return jsonify({'success': success, 'message': message})
