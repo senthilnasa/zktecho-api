@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, g
 from .middleware import validate_api_credentials
-from .zkteco import getUsers, addUser, getAttendance, clearAttendance, deleteUser, enrollFingerprintFromReader,enrollFaceFromReader
+from .zkteco import getUsers, addUser, getAttendance, clearAttendance, deleteUser, deleteFingerprint, enrollFingerprintFromReader,enrollFaceFromReader
 
 # Initialize the Flask Blueprint
 main = Blueprint('main', __name__)
@@ -73,10 +73,18 @@ def add_face():
 @main.route('/delete_finger', methods=['DELETE'])
 @validate_api_credentials
 def delete_finger():
+    # uid and temp_id use the same numbering as /add_finger: the device uid
+    # and a finger slot from 1 to 10.
     data = request.args
     device_config = g.device_config
-    success, message = addUser(device_config['ip'], device_config['port'], data.get('uid'), data.get('name'),
-                               data.get('privilege'), data.get('password'), data.get('group_id'), data.get('user_id'), data.get('fingerprints'))
+    try:
+        uid = int(data.get('uid', ''))
+        temp_id = int(data.get('temp_id', ''))
+    except ValueError:
+        return jsonify({'success': False, 'message': 'uid and temp_id must be numbers'}), 400
+    if temp_id < 1 or temp_id > 10:
+        return jsonify({'success': False, 'message': 'Fingerprint ID must be between 1 and 10'}), 400
+    success, message = deleteFingerprint(device_config['ip'], device_config['port'], device_config['password'], uid, temp_id)
     return jsonify({'success': success, 'message': message})
 
 # Route to delete a user from a ZKTeco device
